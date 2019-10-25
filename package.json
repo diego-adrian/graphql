@@ -4,7 +4,7 @@
   "description": "Proyecto que se aplicara el uso de GraphQL",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "nodemon index.js"
   },
   "repository": {
     "type": "git",
@@ -18,5 +18,13 @@
   "bugs": {
     "url": "https://github.com/diego-adrian/graphql/issues"
   },
-  "homepage": "https://github.com/diego-adrian/graphql#readme"
+  "homepage": "https://github.com/diego-adrian/graphql#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "express-graphql": "^0.9.0",
+    "graphql": "^14.5.8"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.4"
+  }
 }
