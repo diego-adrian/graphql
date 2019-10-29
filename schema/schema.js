@@ -1,6 +1,6 @@
 const graphql = require('graphql');
 
-const { GraphQLObjectType, GraphQLString, GraphQLID, GraphQLInt, GraphQLBoolean, GraphQLSchema } = graphql;
+const { GraphQLObjectType, GraphQLString, GraphQLID, GraphQLInt, GraphQLBoolean, GraphQLList, GraphQLSchema } = graphql;
 
 const courses = [
   {
@@ -84,14 +84,20 @@ const CourseType = new GraphQLObjectType({
   })
 });
 
-const ProfessorType =  new GraphQLObjectType({
+const ProfessorType = new GraphQLObjectType({
   name: 'Professor',
   fields: () => ({
     id: {type: GraphQLID},
     name: {type: GraphQLString},
     age: {type: GraphQLInt},
     active: {type: GraphQLBoolean},
-    date: {type: GraphQLString}
+    date: {type: GraphQLString},
+    course: {
+      type: GraphQLList(CourseType),
+      resolve(parent, args) {
+        return courses.filter(course => course.professorId === parent.id)
+      }
+    }
   })
 });
 
@@ -120,6 +126,12 @@ const RootQuery = new GraphQLObjectType({
         return courses.find(item => item.id === args.id);
       }
     },
+    courses: {
+      type: GraphQLList(CourseType),
+      resolve(parent, args) {
+        return courses
+      }
+    },
     professor: {
       type: ProfessorType,
       args: {
@@ -129,6 +141,12 @@ const RootQuery = new GraphQLObjectType({
       },
       resolve(parent, args) {
         return professors.find(professor => professor.name === args.name);
+      }
+    },
+    professors: {
+      type: GraphQLList(ProfessorType),
+      resolve(parent, args) {
+        return professors
       }
     },
     user: {
