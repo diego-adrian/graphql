@@ -1,54 +1,8 @@
 const graphql = require('graphql');
+const Course = require('../models/course');
+const Professor = require('../models/professor');
 
 const { GraphQLObjectType, GraphQLString, GraphQLID, GraphQLInt, GraphQLBoolean, GraphQLList, GraphQLSchema } = graphql;
-
-const courses = [
-  {
-    id: '1',
-    name: 'Como usar Babel',
-    language: 'Javascript',
-    date: '2019',
-    professorId: 2
-  },
-  {
-    id: '2',
-    name: 'Programacion orientada a Objetos',
-    language: 'Java',
-    date: '2020',
-    professorId: 1
-  },
-  {
-    id: '3',
-    name: 'Algoritmos Geneticos',
-    language: 'Java',
-    date: '2021',
-    professorId: 1
-  }
-];
-
-const professors = [
-  {
-    id: 1,
-    name: 'Adrian',
-    age: 27,
-    active: true,
-    date: '2022'
-  },
-  {
-    id: 2,
-    name: 'Marcelo',
-    age: 30,
-    active: true,
-    date: '2022'
-  },
-  {
-    id: 3,
-    name: 'Ivan',
-    age: 24,
-    active: false,
-    date: '2022'
-  }
-];
 
 const users = [
   {
@@ -78,7 +32,8 @@ const CourseType = new GraphQLObjectType({
     professor: {
       type: ProfessorType,
       resolve(parent, args) {
-        return professors.find(professor => professor.id === parent.professorId)       
+        // return professors.find(professor => professor.id === parent.professorId)
+        return Professor.findById(parent.professorId);
       }
     }
   })
@@ -95,7 +50,8 @@ const ProfessorType = new GraphQLObjectType({
     course: {
       type: GraphQLList(CourseType),
       resolve(parent, args) {
-        return courses.filter(course => course.professorId === parent.id)
+        // return courses.filter(course => course.professorId === parent.id)
+        return Course.find({ professorId: args.id})
       }
     }
   })
@@ -123,30 +79,34 @@ const RootQuery = new GraphQLObjectType({
         }
       },
       resolve(parent, args) {
-        return courses.find(item => item.id === args.id);
+        // return courses.find(item => item.id === args.id);
+        return Course.findById(args.id)
       }
     },
     courses: {
       type: GraphQLList(CourseType),
       resolve(parent, args) {
-        return courses
+        // return courses
+        return Course.find()
       }
     },
     professor: {
       type: ProfessorType,
       args: {
-        name: {
-          type: GraphQLString
+        id: {
+          type: GraphQLID
         }
       },
       resolve(parent, args) {
-        return professors.find(professor => professor.name === args.name);
+        // return professors.find(professor => professor.name === args.name);
+        return Professor.findById(args.id)
       }
     },
     professors: {
       type: GraphQLList(ProfessorType),
       resolve(parent, args) {
-        return professors
+        // return professors
+        return Professor.find()
       }
     },
     user: {
@@ -163,6 +123,44 @@ const RootQuery = new GraphQLObjectType({
   }
 });
 
+const Mutation = new GraphQLObjectType({
+  name: 'Mutation',
+  fields: {
+    addCourse: {
+      type: CourseType,
+      args: {
+        name: {type: GraphQLString},
+        language: {type: GraphQLString},
+        date: {type: GraphQLString},
+        professorId: {type: GraphQLID}
+      },
+      resolve(parent, args) {
+        let course = new Course({
+          name: args.name,
+          language: args.language,
+          date: args.date,
+          professorId: args.professorId
+        });
+        return course.save();
+      }
+    },
+    addProfessor: {
+      type: ProfessorType,
+      args: {
+        name: {type: GraphQLString},
+        age: {type: GraphQLInt},
+        active: {type: GraphQLBoolean},
+        date: {type: GraphQLString}
+      },
+      resolve (ṕarent, args) {
+        let professor = new Professor(args);
+        return professor.save();
+      }
+    }
+  }
+})
+
 module.exports = new GraphQLSchema({
-  query: RootQuery
+  query: RootQuery,
+  mutation: Mutation
 });
