@@ -7,7 +7,8 @@ const PORT = process.env.PORT || 3131;
 
 mongoose.connect('mongodb://localhost/courseDB', {
   useNewUrlParser: true,
-  useUnifiedTopology: true
+  useUnifiedTopology: true,
+  useFindAndModify: false
 })
   .then(() => {
     app.use('/graphql', graphqlHTTP({
